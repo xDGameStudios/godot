@@ -169,6 +169,7 @@ class EditorFileSystem : public Node {
 		String script_class_icon_path;
 	};
 
+	HashMap<String, FuncRef> scan_callbacks;
 	HashMap<String, FileCache> file_cache;
 
 	struct ScanProgress {
