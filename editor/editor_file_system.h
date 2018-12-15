@@ -31,11 +31,13 @@
 #ifndef EDITOR_FILE_SYSTEM_H
 #define EDITOR_FILE_SYSTEM_H
 
+#include "core/func_ref.h"
 #include "core/os/dir_access.h"
 #include "core/os/thread.h"
 #include "core/os/thread_safe.h"
 #include "core/set.h"
 #include "scene/main/node.h"
+
 class FileAccess;
 
 struct EditorProgressBG;
@@ -169,7 +171,13 @@ class EditorFileSystem : public Node {
 		String script_class_icon_path;
 	};
 
-	HashMap<String, FuncRef> scan_callbacks;
+	// TODO xDGameStudios
+	Vector<Ref<FuncRef> > script_callbacks;
+	HashMap<String, Ref<FuncRef> > script_callbacks_cache;
+
+	Vector<void (*)(const String &) > callbacks;
+	HashMap<String, void (*)(const String &)> callback_cache;
+
 	HashMap<String, FileCache> file_cache;
 
 	struct ScanProgress {
@@ -207,6 +215,9 @@ class EditorFileSystem : public Node {
 	bool _update_scan_actions();
 
 	void _update_extensions();
+
+	// TODO xDGameStudios
+	void _execute_callbacks(const String file_path);
 
 	void _reimport_file(const String &p_file);
 
@@ -247,6 +258,13 @@ public:
 	void scan_changes();
 	void get_changed_sources(List<String> *r_changed);
 	void update_file(const String &p_file);
+
+	// TODO xDGameStudios
+	void register_script_scan_callback(const String name, Ref<FuncRef> callback);
+	void unregister_script_scan_callback(const String name);
+
+	void register_scan_callback(const String name, void (*callback)(const String &));
+	void unregister_scan_callback(const String name);
 
 	EditorFileSystemDirectory *get_filesystem_path(const String &p_path);
 	String get_file_type(const String &p_file) const;
