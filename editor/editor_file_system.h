@@ -217,7 +217,7 @@ class EditorFileSystem : public Node {
 	void _update_extensions();
 
 	// TODO xDGameStudios
-	void _execute_callbacks(const String file_path);
+	void _execute_callbacks(const String &file_path);
 
 	void _reimport_file(const String &p_file);
 
@@ -260,11 +260,11 @@ public:
 	void update_file(const String &p_file);
 
 	// TODO xDGameStudios
-	void register_script_scan_callback(const String name, Ref<FuncRef> callback);
-	void unregister_script_scan_callback(const String name);
+	void register_script_scan_callback(const String &name, const Ref<FuncRef> &callback);
+	void unregister_script_scan_callback(const String &name);
 
-	void register_scan_callback(const String name, void (*callback)(const String &));
-	void unregister_scan_callback(const String name);
+	void register_scan_callback(const String &name, void (*callback)(const String &));
+	void unregister_scan_callback(const String &name);
 
 	EditorFileSystemDirectory *get_filesystem_path(const String &p_path);
 	String get_file_type(const String &p_file) const;

@@ -31,6 +31,7 @@
 #ifndef EDITOR_PLUGIN_H
 #define EDITOR_PLUGIN_H
 
+#include "core/func_ref.h"
 #include "core/io/config_file.h"
 #include "core/undo_redo.h"
 #include "editor/editor_inspector.h"
@@ -122,6 +123,11 @@ protected:
 
 	void add_custom_type(const String &p_type, const String &p_base, const Ref<Script> &p_script, const Ref<Texture> &p_icon);
 	void remove_custom_type(const String &p_type);
+
+	// TODO xDGameStudios
+
+	void register_filesystem_scan_callback(const String &name, const Ref<FuncRef> &callback);
+	void unregister_filesystem_scan_callback(const String &name);
 
 public:
 	enum CustomControlContainer {

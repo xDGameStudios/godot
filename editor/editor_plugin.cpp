@@ -298,6 +298,18 @@ void EditorPlugin::remove_custom_type(const String &p_type) {
 	EditorNode::get_editor_data().remove_custom_type(p_type);
 }
 
+
+// TODO xDGameStudios
+
+void EditorPlugin::register_filesystem_scan_callback(const String &name, const Ref <FuncRef> &callback) {
+	EditorFileSystem::get_singleton()->register_script_scan_callback(name, callback);
+}
+
+void EditorPlugin::unregister_filesystem_scan_callback(const String &name) {
+	EditorFileSystem::get_singleton()->unregister_script_scan_callback(name);
+}
+
+
 void EditorPlugin::add_autoload_singleton(const String &p_name, const String &p_path) {
 	EditorNode::get_singleton()->get_project_settings()->get_autoload_settings()->autoload_add(p_name, p_path);
 }
@@ -757,6 +769,11 @@ void EditorPlugin::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("remove_tool_menu_item", "name"), &EditorPlugin::remove_tool_menu_item);
 	ClassDB::bind_method(D_METHOD("add_custom_type", "type", "base", "script", "icon"), &EditorPlugin::add_custom_type);
 	ClassDB::bind_method(D_METHOD("remove_custom_type", "type"), &EditorPlugin::remove_custom_type);
+
+
+	// TODO xDGameStudios
+	ClassDB::bind_method(D_METHOD("register_filesystem_scan_callback", "name", "callback"), &EditorPlugin::register_filesystem_scan_callback);
+	ClassDB::bind_method(D_METHOD("unregister_filesystem_scan_callback", "name"), &EditorPlugin::unregister_filesystem_scan_callback);
 
 	ClassDB::bind_method(D_METHOD("add_autoload_singleton", "name", "path"), &EditorPlugin::add_autoload_singleton);
 	ClassDB::bind_method(D_METHOD("remove_autoload_singleton", "name"), &EditorPlugin::remove_autoload_singleton);

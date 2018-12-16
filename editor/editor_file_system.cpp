@@ -194,7 +194,7 @@ EditorFileSystemDirectory::~EditorFileSystemDirectory() {
 
 // TODO xDGameStudios
 
-void EditorFileSystem::register_scan_callback(const String name, void (*callback)(const String &)) {
+void EditorFileSystem::register_scan_callback(const String &name, void (*callback)(const String &)) {
 
 	if (callback_cache.has(name))
 		return;
@@ -203,7 +203,7 @@ void EditorFileSystem::register_scan_callback(const String name, void (*callback
 	callbacks.push_back(callback);
 }
 
-void EditorFileSystem::unregister_scan_callback(const String name) {
+void EditorFileSystem::unregister_scan_callback(const String &name) {
 
 	if (!callback_cache.has(name))
 		return;
@@ -212,7 +212,7 @@ void EditorFileSystem::unregister_scan_callback(const String name) {
 	callback_cache.erase(name);
 }
 
-void EditorFileSystem::register_script_scan_callback(const String name, Ref <FuncRef> callback) {
+void EditorFileSystem::register_script_scan_callback(const String &name, const Ref<FuncRef> &callback) {
 
 	if (script_callbacks_cache.has(name))
 		return;
@@ -221,7 +221,7 @@ void EditorFileSystem::register_script_scan_callback(const String name, Ref <Fun
 	script_callbacks.push_back(callback);
 }
 
-void EditorFileSystem::unregister_script_scan_callback(const String name) {
+void EditorFileSystem::unregister_script_scan_callback(const String &name) {
 
 	if (!script_callbacks_cache.has(name))
 		return;
@@ -231,18 +231,20 @@ void EditorFileSystem::unregister_script_scan_callback(const String name) {
 }
 
 
-void EditorFileSystem::_execute_callbacks(const String file_path) {
+void EditorFileSystem::_execute_callbacks(const String &file_path) {
 
 	for (int i = 0; i < callbacks.size(); i++) {
 		callbacks[i](file_path);
 	}
 
-	for (int i = 0; i < script_callbacks.size(); i++) {
-		//Variant::CallError r_error;
-		//const Vector<Variant> vargs = varray(file_path);
+	Variant name = Variant(file_path);
+	Variant *arg[1] = { &name };
 
-		//Ref<FuncRef> callback = script_callbacks[i];
-		//callback->call_func(vargs, 1, r_error);
+	for (int i = 0; i < script_callbacks.size(); i++) {
+		Variant::CallError r_error;
+
+		Ref<FuncRef> callback = script_callbacks[i];
+		callback->call_func( (const Variant **)arg, 1, r_error);
 	}
 }
 
