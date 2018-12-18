@@ -126,8 +126,9 @@ protected:
 
 	// TODO xDGameStudios
 
-	void register_filesystem_scan_callback(const String &name, const Ref<FuncRef> &callback);
-	void unregister_filesystem_scan_callback(const String &name);
+	int register_filesystem_scan_callback(const Ref<FuncRef> &callback);
+	void reassign_filesystem_scan_callback(int callback_id, const Ref<FuncRef> &callback);
+	void unregister_filesystem_scan_callback(int callback_id);
 
 public:
 	enum CustomControlContainer {

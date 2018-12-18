@@ -171,12 +171,13 @@ class EditorFileSystem : public Node {
 		String script_class_icon_path;
 	};
 
-	// TODO xDGameStudios
-	Vector<Ref<FuncRef> > script_callbacks;
-	HashMap<String, Ref<FuncRef> > script_callbacks_cache;
+	int callback_uid;
 
-	Vector<void (*)(const String &) > callbacks;
-	HashMap<String, void (*)(const String &)> callback_cache;
+	Vector<Ref<FuncRef> > script_callbacks;
+	HashMap<int, Ref<FuncRef> > script_callback_cache;
+
+	Vector<void (*)(const List<String> &) > callbacks;
+	HashMap<int, void (*)(const List<String> &)> callback_cache;
 
 	HashMap<String, FileCache> file_cache;
 
@@ -217,7 +218,7 @@ class EditorFileSystem : public Node {
 	void _update_extensions();
 
 	// TODO xDGameStudios
-	void _execute_callbacks(const String &file_path);
+	void _execute_callbacks(const List<String> &file_paths);
 
 	void _reimport_file(const String &p_file);
 
@@ -254,17 +255,19 @@ public:
 	bool is_scanning() const;
 	bool is_importing() const { return importing; }
 	float get_scanning_progress() const;
+
 	void scan();
 	void scan_changes();
 	void get_changed_sources(List<String> *r_changed);
 	void update_file(const String &p_file);
 
-	// TODO xDGameStudios
-	void register_script_scan_callback(const String &name, const Ref<FuncRef> &callback);
-	void unregister_script_scan_callback(const String &name);
+	int register_script_scan_callback(const Ref<FuncRef> &callback);
+	void reassign_script_scan_callback(int callback_id, const Ref<FuncRef> &callback);
+	void unregister_script_scan_callback(int callback_id);
 
-	void register_scan_callback(const String &name, void (*callback)(const String &));
-	void unregister_scan_callback(const String &name);
+	int register_scan_callback(void (*callback)(const List<String> &));
+	void reassign_scan_callback(int callback_id, void (*callback)(const List<String> &));
+	void unregister_scan_callback(int callback_id);
 
 	EditorFileSystemDirectory *get_filesystem_path(const String &p_path);
 	String get_file_type(const String &p_file) const;

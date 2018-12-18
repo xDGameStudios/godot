@@ -191,54 +191,75 @@ EditorFileSystemDirectory::~EditorFileSystemDirectory() {
 	}
 }
 
+int EditorFileSystem::register_scan_callback(void (*callback)(const List<String> &)) {
+
+	callback_cache[++callback_uid] = callback;
+	callbacks.push_back(callback);
+
+	return callback_uid;
+}
+
+void EditorFileSystem::reassign_scan_callback(int callback_id, void (*callback)(const List<String> &)) {
+
+	if (!callback_cache.has(callback_id))
+		return;
+
+	callbacks.erase(callback_cache[callback_id]);
+	callbacks.push_back(callback);
+
+	callback_cache[callback_id] = callback;
+}
+
+void EditorFileSystem::unregister_scan_callback(int callback_id) {
+
+	if (!callback_cache.has(callback_id))
+		return;
+
+	callbacks.erase(callback_cache[callback_id]);
+	callback_cache.erase(callback_id);
+}
+
+int EditorFileSystem::register_script_scan_callback(const Ref<FuncRef> &callback) {
+
+	script_callback_cache[++callback_uid] = callback;
+	script_callbacks.push_back(callback);
+
+	return callback_uid;
+}
+
+void EditorFileSystem::reassign_script_scan_callback(int callback_id, const Ref <FuncRef> &callback) {
+
+	if (!script_callback_cache.has(callback_id))
+		return;
+
+	script_callbacks.erase(script_callback_cache[callback_id]);
+	script_callbacks.push_back(callback);
+
+	script_callback_cache[callback_id] = callback;
+}
+
+void EditorFileSystem::unregister_script_scan_callback(int callback_id) {
+
+	if (!script_callback_cache.has(callback_id))
+		return;
+
+	script_callbacks.erase(script_callback_cache[callback_id]);
+	script_callback_cache.erase(callback_id);
+}
 
 // TODO xDGameStudios
-
-void EditorFileSystem::register_scan_callback(const String &name, void (*callback)(const String &)) {
-
-	if (callback_cache.has(name))
-		return;
-
-	callback_cache[name] = callback;
-	callbacks.push_back(callback);
-}
-
-void EditorFileSystem::unregister_scan_callback(const String &name) {
-
-	if (!callback_cache.has(name))
-		return;
-
-	callbacks.erase(callback_cache[name]);
-	callback_cache.erase(name);
-}
-
-void EditorFileSystem::register_script_scan_callback(const String &name, const Ref<FuncRef> &callback) {
-
-	if (script_callbacks_cache.has(name))
-		return;
-
-	script_callbacks_cache[name] = callback;
-	script_callbacks.push_back(callback);
-}
-
-void EditorFileSystem::unregister_script_scan_callback(const String &name) {
-
-	if (!script_callbacks_cache.has(name))
-		return;
-
-	script_callbacks.erase(script_callbacks_cache[name]);
-	script_callbacks_cache.erase(name);
-}
-
-
-void EditorFileSystem::_execute_callbacks(const String &file_path) {
+void EditorFileSystem::_execute_callbacks(const List<String> &file_paths) {
 
 	for (int i = 0; i < callbacks.size(); i++) {
-		callbacks[i](file_path);
+		callbacks[i](file_paths);
 	}
 
-	Variant name = Variant(file_path);
-	Variant *arg[1] = { &name };
+	Array array;
+	for (int i = 0; i < file_paths.size(); i++) {
+		array.push_back(file_paths[i]);
+	}
+	Variant varray = Variant(array);
+	Variant *arg[1] = { &varray };
 
 	for (int i = 0; i < script_callbacks.size(); i++) {
 		Variant::CallError r_error;
@@ -247,7 +268,6 @@ void EditorFileSystem::_execute_callbacks(const String &file_path) {
 		callback->call_func( (const Variant **)arg, 1, r_error);
 	}
 }
-
 
 void EditorFileSystem::_scan_filesystem() {
 
@@ -1424,6 +1444,7 @@ String EditorFileSystem::_get_global_script_class(const String &p_type, const St
 }
 
 void EditorFileSystem::_scan_script_classes(EditorFileSystemDirectory *p_dir) {
+
 	int filecount = p_dir->files.size();
 	const EditorFileSystemDirectory::FileInfo *const *files = p_dir->files.ptr();
 	for (int i = 0; i < filecount; i++) {
