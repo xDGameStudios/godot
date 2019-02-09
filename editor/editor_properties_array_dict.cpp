@@ -874,7 +874,18 @@ void EditorPropertyDictionary::update_property() {
 
 			if (i < amount) {
 				String cs = key.get_construct_string();
-				prop->set_label(key.get_construct_string());
+				String ls = cs;
+
+				if (key.get_type() == Variant::OBJECT) {
+					Resource *res = Object::cast_to<Resource>(key);
+					if (res && !res->get_path().empty()) {
+						ls = res->get_path().get_file();
+					} else {
+						ls = res->get_class();
+					}
+				}
+
+				prop->set_label(ls);
 				prop->set_tooltip(cs);
 				change_index = i + offset;
 			} else if (i == amount) {
